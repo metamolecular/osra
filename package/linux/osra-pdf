@@ -1,0 +1,413 @@
+#!/usr/bin/perl
+# This is a script to run OSRA processing on images and PDF files with higher quality output than what is produced with the default options,
+# It is expected to be useful mainly for PDF files. It works by running OSRA with multiple combinations of
+# image processing options and automatically selecting and filtering for the best possible molecular structure. Be prepared 
+# that it is much slower than a regular OSRA run. You can modify the option set or the filtering criteria to better suit your needs.
+# OpenBabel perl binding are required to run this script.
+# Usage: ./osra-pdf input.pdf output.sdf
+#
+# Igor Filippov, igor.v.filippov@gmail.com
+
+$OSRA = "/usr/local/bin/osra";
+@options = (['','-j'],
+	    ['', '-u 1','-u 2'],
+	    ['', '-r 150']
+	    );
+
+use List::Util qw[min max];
+use Chemistry::OpenBabel;
+use Statistics::Descriptive;
+
+if ($#ARGV != 1)
+{
+    print "Usage: ".$0." <input image> <output sd file>\n";
+    exit(1);
+}
+
+$TAN_MIN = 0.9;
+$DIFF = 0.1;
+
+$PREFIX = "/tmp/tmp.osra.output.".$$;
+
+$Chemistry::OpenBabel::obErrorLog->StopLogging();
+$num_files = run_osra_with_different_options($OSRA,$ARGV[0],\@options,$PREFIX);
+
+$records = load_all_files($PREFIX,$num_files);
+$sdf_after_concat = concat_sd_files($records);
+$sdf_after_avg_bond = filter_by_avg_bond($sdf_after_concat);
+$sdf_after_props = filter_by_mol_properties($sdf_after_avg_bond);
+$sdf_after_filters = keep_unique_mols($sdf_after_props);
+
+save_sd_file($ARGV[1],$sdf_after_filters);
+for (my $i=0; $i<$num_files; $i++)
+{
+    unlink($PREFIX.".".$i);
+}
+exit(0);
+
+sub run_osra_with_different_options($$$$)
+{
+    my $osra = shift;
+    my $input = shift;
+    my $options = shift;
+    my $prefix = shift;
+    my @default_options = ($osra,$input,"-b","-c","-e","-p", "-f","sdf");
+    my $stop;
+    my @current;
+    my $num_files = 0;
+
+    while (!$stop)
+    {
+	my @new_options = @default_options;
+	for (my $i = 0; $i<=$#{$options}; $i++)
+	{
+	    my $opt = $options->[$i]->[$current[$i]];
+	    my @split_opt = split /\s+/,$opt;
+	    push(@new_options,@split_opt);
+	}
+	push (@new_options,'-w',$prefix.".".$num_files);
+	system(@new_options);
+	$num_files++;
+
+	my $j = $#{$options};
+	while ($current[$j] == $#{$options->[$j]} && $j>=0) {$j--;}
+	if ($j>=0)
+	{
+	    $current[$j]++;
+	    for (my $k = $j+1; $k<=$#{$options}; $k++)
+	    {
+		$current[$k] = 0;
+	    }
+	}
+	else
+	{
+	    $stop = 1;
+	}
+    }
+    return($num_files);
+}
+
+sub load_all_files($$)
+{
+    my $prefix=shift;
+    my $num_files = shift;
+
+    my $obconversion = new Chemistry::OpenBabel::OBConversion;
+    $obconversion->SetInFormat("sdf");
+    my $obmol = new Chemistry::OpenBabel::OBMol;
+
+    my @records;
+#    my $i=0;
+#    for $file (@ARGV)
+    for (my $i=0; $i<$num_files;$i++)
+    {
+	my $file = $prefix.".".$i;
+	my $j=0;
+	my $notatend = $obconversion->ReadFile($obmol, $file);
+	while ($notatend) 
+	{
+	    $records[$i]->[$j++] = new Chemistry::OpenBabel::OBMol($obmol);
+	    $obmol->Clear();
+	    $notatend = $obconversion->Read($obmol);
+	}
+#	$i++;
+    }
+    return(\@records);
+}
+
+sub concat_sd_files($)
+{
+    my $records=shift;
+    my @done;
+    my @sdf_after_conctat;
+
+    for (my $i1=0; $i1<=$#{$records}; $i1++)
+    {
+	for ($j1=0; $j1<= $#{$records->[$i1]}; $j1++)
+	{
+	    if (!$done[$i1]->[$j1])
+	    {
+		my $sdf1=$records->[$i1]->[$j1];
+		my $obdata = $sdf1->GetData("Page");
+		my $page1 = $obdata->GetValue();
+		$obdata = $sdf1->GetData("Surrounding_box");
+		my $box1 = $obdata->GetValue(); 
+		$obdata = $sdf1->GetData("Confidence_estimate");
+		my $conf1 = $obdata->GetValue();
+	    
+		$box1 =~ /(\d+)x(\d+)\-(\d+)x(\d+)/;
+		my $left1=$1;
+		my $top1=$2;
+		my $right1=$3;
+		my $bottom1=$4;
+		
+		my $best_conf = $conf1;
+		my $best_sdf=$sdf1;
+		for (my $i2=$i1+1; $i2<=$#{$records}; $i2++)
+		{
+		    for ($j2=0; $j2<= $#{$records->[$i2]}; $j2++)
+		    {
+			if (!$done[$i2]->[$j2])
+			{
+			    my $sdf2=$records->[$i2]->[$j2];
+			    my $obdata = $sdf2->GetData("Page");
+			    my $page2 = $obdata->GetValue();
+			    $obdata = $sdf2->GetData("Surrounding_box");
+			    my $box2 = $obdata->GetValue(); 
+			    $obdata = $sdf2->GetData("Confidence_estimate");
+			    my $conf2 = $obdata->GetValue();
+			    
+			    if ($page1 == $page2)
+			    {
+				$box2 =~ /(\d+)x(\d+)\-(\d+)x(\d+)/;
+				my $left2=$1;
+				my $top2=$2;
+				my $right2=$3;
+				my $bottom2=$4;
+				my $overlap = 0;
+				my $l = max($left1, $left2);
+				my $r = min($right1,$right2);
+				my $t = max($top1, $top2);
+				my $b = min($bottom1, $bottom2);
+				if (($r > $l) && ($b > $t))
+				{
+				    $overlap = ($r-$l)*($b-$t);
+				}
+				my $area1=($right1-$left1)*($bottom1-$top1);
+				my $area2=($right2-$left2)*($bottom2-$top2);
+				if ($right1>$left1 && $right2>$left2 && $bottom1>$top1 && $bottom2>$top2)
+				{
+				    my $tanimoto = $overlap/($area1+$area2-$overlap);
+				    my $x_rel_diff = abs(($right1-$left1)-($right2-$left2))/min(($right1-$left1),($right2-$left2));
+				    my $y_rel_diff = abs(($bottom1-$top1)-($bottom2-$top2))/min(($bottom1-$top1),($bottom2-$top2));
+				    if ($tanimoto > $TAN_MIN 
+					&& $x_rel_diff<$DIFF && $y_rel_diff<$DIFF)
+				    {
+					if ($conf2 > $best_conf)
+					{
+					    $best_conf=$conf2;
+					    $best_sdf=$sdf2;
+					}
+					$done[$i2]->[$j2]=1;
+				    }
+				}
+			    }
+			}
+		    }
+		}
+	    
+		push(@sdf_after_concat,$best_sdf);
+		$done[$i1]->[$j1]=1;
+	    }
+	}
+    }
+    return(\@sdf_after_concat);
+} 
+
+
+sub filter_by_avg_bond($)
+{
+    my $sdf_after_concat=shift;
+    my @arr;
+    for (my $i=0; $i<=$#{$sdf_after_concat}; $i++)
+    {
+	my $sdf = $sdf_after_concat->[$i];
+	$obdata = $sdf->GetData("Confidence_estimate");
+	my $conf = $obdata->GetValue();
+	$obdata = $sdf->GetData("Average_bond_length"); 
+	my $avg_bond = $obdata->GetValue();
+	$arr[$i]->{'conf'}=$conf;
+	$arr[$i]->{'avg'}=$avg_bond;
+    }
+
+    my $stat = Statistics::Descriptive::Full->new();
+    @sorted_arr = sort {$b->{'conf'} <=> $a->{'conf'}} @arr;
+    for (my $i=0; $i<=min($#sorted_arr,max(10,$#sorted_arr/10)); $i++)
+    {
+	$stat->add_data($sorted_arr[$i]->{'avg'}); 
+    }
+
+    my $mean_avg_bond = $stat->mean();
+    my $dev_avg_bond  = $stat->standard_deviation();
+
+    my @sdf_after_avg_bond;
+    for (my $i=0; $i<=$#{$sdf_after_concat}; $i++)
+    {
+	if ($arr[$i]->{'avg'} > $mean_avg_bond - 2*$dev_avg_bond  &&
+	    $arr[$i]->{'avg'} < $mean_avg_bond + 2*$dev_avg_bond)
+	{
+	    push(@sdf_after_avg_bond,$sdf_after_concat->[$i]);
+	}
+    }
+    return(\@sdf_after_avg_bond);
+}
+
+
+sub filter_by_mol_properties($)
+{
+    my $sdf_after_avg_bond = shift;
+    my @sdf_after_filters;
+    my $obconversion = new Chemistry::OpenBabel::OBConversion;
+    $obconversion->SetOutFormat("sdf");
+    for (my $i=0; $i<=$#{$sdf_after_avg_bond}; $i++)
+    {
+	my $sdf = $sdf_after_avg_bond->[$i];
+	my $obdata = $sdf->GetData("Confidence_estimate");
+	my $conf = $obdata->GetValue();
+  
+	my $bad_atom_num=0; 
+	my $xx_present=0;
+	my $num_bad_valence=0;
+	my $min_bond_angle=180;
+	my $max_carbon_bond_angle=0;
+	my $min_exo_angle=180;
+	for (my $j=1; $j<=$sdf->NumAtoms(); $j++) 
+	{
+	    my $atom = $sdf->GetAtom($j);
+	    my $anum = $atom->GetAtomicNum();
+	    # count atoms not in C N O S F Cl Br I P
+	    if ($anum != 6 && $anum != 7 && $anum != 8 && $anum != 9 &&
+		$anum != 15 && $anum != 16 && $anum != 17 && $anum != 53
+		&& $anum != 1 && $anum != 35)
+	    {
+		$bad_atom_num++;
+	    }
+	    # is Xx present?
+	    my $sdf_string =  $obconversion->WriteString($sdf);
+	    if ($sdf_string =~ "Xx")
+	    {
+		$xx_present = 1;
+	    }
+
+	    if ($atom->GetValence() > $atom->GetImplicitValence())
+	    {
+		$num_bad_valence++;
+	    }
+	    my $iter = new Chemistry::OpenBabel::OBAtomAtomIter($atom);
+	    my @neighbor1;
+	    while (my $n = $iter->())
+	    {
+		push(@neighbor1,$n->GetIdx());
+	    }
+	    for (my $k=0;$k<=$#neighbor1;$k++)
+	    {
+		my $n = $sdf->GetAtom($neighbor1[$k]);
+		my $iter2 = new Chemistry::OpenBabel::OBAtomAtomIter($n);
+		my @neighbor2;
+		while (my $n2 = $iter2->())
+		{
+		    push(@neighbor2,$n2->GetIdx());
+		}
+		for (my $l=0; $l<=$#neighbor2; $l++)
+		{
+		    my $n2 = $sdf->GetAtom($neighbor2[$l]);
+		    if ($neighbor2[$l] != $atom->GetIdx())
+		    {
+			my $angle = abs($sdf->GetAngle($atom,$n,$n2));
+			if ($angle < $min_bond_angle)
+			{
+			    $min_bond_angle = $angle;
+			}
+		    }
+		    if ($#neighbor1==0 && $n->IsInRing() && $n2->IsInRing())
+		    {
+			my $angle = abs($sdf->GetAngle($atom, $n, $n2));
+			if ($angle < $min_exo_angle)
+			{
+			    $min_exo_angle=$angle;
+			}
+		    }
+		}
+	    }
+	    if ($atom->GetAtomicNum() == 6 && $#neighbor1 == 1)
+	    {
+		my $atom1 = $sdf->GetAtom($neighbor1[0]);
+		my $atom2 = $sdf->GetAtom($neighbor1[1]);
+		my $bond1 = $sdf->GetBond($atom1,$atom);
+		my $bond2 = $sdf->GetBond($atom2,$atom);
+		if ($bond1->IsSingle() && $bond2->IsSingle())
+		{
+		    my $angle = abs($sdf->GetAngle($atom1, $atom, $atom2));
+		    if ($angle > $max_carbon_bond_angle)
+		    {
+			$max_carbon_bond_angle = $angle;
+		    }
+		}
+	    }
+	}
+	
+	my $min_bond_length = 10;
+	my $num_bad_stereo = 0;
+	for (my $j=0; $j<$sdf->NumBonds(); $j++)
+	{
+	    my $bond = $sdf->GetBond($j);
+	    my $atom1 = $bond->GetBeginAtom();
+	    my $atom2 = $bond->GetEndAtom();
+	    if ($atom1->GetAtomicNum() != 1 && $atom2->GetAtomicNum() != 1
+		&& $bond->GetLength() < $min_bond_length)
+	    {
+		$min_bond_length = $bond->GetLength();
+	    }
+	    if (!$atom1->IsChiral() && $bond->IsWedgeOrHash())
+	    {
+		$num_bad_stereo++;
+	    }
+	}
+	if ($conf>0.4 
+	    #&& $bad_atom_num==0 
+	    && $xx_present==0
+	    && $min_bond_length>0.85 
+	    && $min_bond_angle>10 
+	    && $max_carbon_bond_angle<155 
+	    && $min_exo_angle>50
+	    && $sdf->NumHvyAtoms()>6 
+	    && $sdf->GetMolWt()<2000 
+	    && $num_bad_stereo==0
+	    && $num_bad_valence==0)
+	{
+	    push(@sdf_after_filters,$sdf);
+	}
+    }
+    return(\@sdf_after_filters);
+}
+
+
+sub keep_unique_mols($)
+{
+    my $mols = shift;
+    my $obconversion = new Chemistry::OpenBabel::OBConversion;
+    $obconversion->SetOutFormat("inchi");
+    my %collection;
+    my @unique;
+    for (my $i=0; $i<=$#{$mols}; $i++)
+    {
+	my $sdf = $mols->[$i];
+	my $inchi =  $obconversion->WriteString($sdf);
+	if (!$inchi || !$collection{$inchi})
+	{
+	    push(@unique,$sdf);
+	    if ($inchi)
+	    {
+	        $collection{$inchi} = 1;
+            }
+	}
+    }
+    return(\@unique);
+}
+
+sub save_sd_file($$)
+{
+    my $name = shift;
+    my $sdf_after_filters = shift;
+
+    my $obconversion = new Chemistry::OpenBabel::OBConversion;
+    $obconversion->SetOutFormat("sdf");
+    open(OUT,">".$name);
+    for (my $i=0; $i<=$#{$sdf_after_filters}; $i++)
+    {
+	my $sdf = $sdf_after_filters->[$i];
+	my $output =  $obconversion->WriteString($sdf);
+	print OUT $output;
+    }
+    close(OUT);  
+}

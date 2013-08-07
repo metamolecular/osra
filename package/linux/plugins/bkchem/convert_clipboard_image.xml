@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<plugin>
+
+  <meta>
+    <author>Noel M. O'Boyle, Igor V. Filippov</author>
+    <description lang="en">
+	    Takes an image of a molecule from the clipboard and converts it using OSRA (you need to install OSRA
+	    and set the environment variable OSRA to point to the executable)
+    </description>
+  </meta>
+
+  <source>
+    <file>convert_clipboard_image.py</file>
+    <menu-text lang="en">Convert Image To Mol</menu-text>
+  </source>
+</plugin>

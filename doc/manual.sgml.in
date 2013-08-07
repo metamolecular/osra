@@ -1,0 +1,752 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.docbook.org/xml/4.5/docbookx.dtd" [
+	<!ENTITY package_name "OSRA">
+	<!ENTITY package_version "@PACKAGE_VERSION@">
+	<!ENTITY package_title "OSRA - chemical structure recognition tool">
+	<!ENTITY command_name "@PACKAGE_NAME@">
+]>
+
+<refentry lang="en" id="foo">
+	<refentryinfo>
+		<title>&package_title;</title>
+		<productname>&package_name;</productname>
+		<authorgroup>
+			<!-- Should go to package/linux/debian/control#Description -->
+			<author>
+				<contrib>Developer</contrib>
+				<firstname>Igor</firstname>
+				<surname>Filippov</surname>
+				<contrib>Implemented the whole functionality.</contrib>
+				<email>igor.v.filippov@gmail.com</email>
+			</author>
+			<!-- Should go to package/linux/debian/copyright#Maintainer -->
+			<!-- Should go to package/linux/debian/control#Maintainer -->
+			<author>
+				<contrib>Maintainer</contrib>
+				<firstname>Dmitry</firstname>
+				<surname>Katsubo</surname>
+				<contrib>Packaged this software.</contrib>
+				<email>dma_k@mail.ru</email>
+			</author>
+		</authorgroup>
+		<!-- Should go to package/linux/debian/copyright#Copyright -->
+<!--		<copyright>
+			<year>2007-2010</year>
+			<holder><![CDATA[Igor Filippov <igor.v.filippov@gmail.com>]]></holder>
+		</copyright>
+-->
+		<!-- Should go to package/linux/debian/control#Description: -->
+		<legalnotice>
+            <para>This manual page was written for the Debian system (and may be used by others).</para>
+            <para>
+				Permission is granted to copy, distribute and/or modify this document under the terms of the GNU General Public License,
+				Version 2 or (at your option) any later version published by the Free Software Foundation.
+            </para>
+			<para>
+				On Debian systems, the complete text of the GNU General Public License can be found
+				in <filename>/usr/share/common-licenses/GPL</filename>.
+			</para>
+		</legalnotice>
+	</refentryinfo>
+	<refmeta>
+		<refentrytitle>&package_name;</refentrytitle>
+		<manvolnum>1</manvolnum>
+		<refmiscinfo class="version">&package_version;</refmiscinfo>
+		<refmiscinfo class="manual">&package_name; recognition tool</refmiscinfo>
+	</refmeta>
+
+	<refnamediv>
+		<!-- This also defines the output file name -->
+		<refname>&command_name;</refname>
+		<!-- Should go to package/linux/debian/control#Description: -->
+		<refpurpose>A command line chemical structure recognition tool</refpurpose>
+	</refnamediv>
+
+	<refsynopsisdiv>
+		<cmdsynopsis>
+			<command>&command_name;</command>
+
+			<!--
+				Image pre-processing options
+			-->
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-R</option>
+					</arg>
+					<arg choice="plain">
+						<option>--rotate</option>
+					</arg>
+				</group>
+				<replaceable class="option">degree</replaceable>
+			</arg>
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-n</option>
+					</arg>
+					<arg choice="plain">
+						<option>--negate</option>
+					</arg>
+				</group>
+			</arg>
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-r</option>
+					</arg>
+					<arg choice="plain">
+						<option>--resolution</option>
+					</arg>
+				</group>
+				<replaceable class="option">dpi</replaceable>
+			</arg>
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-t</option>
+					</arg>
+					<arg choice="plain">
+						<option>--threshold</option>
+					</arg>
+				</group>
+				<replaceable class="option">number</replaceable>
+			</arg>
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-u</option>
+					</arg>
+					<arg choice="plain">
+						<option>--unpaper</option>
+					</arg>
+				</group>
+				<replaceable class="option">rounds</replaceable>
+			</arg>
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-j</option>
+					</arg>
+					<arg choice="plain">
+						<option>--jaggy</option>
+					</arg>
+				</group>
+			</arg>
+			
+			<!--
+				Output format options
+			-->
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-f</option>
+					</arg>
+					<arg choice="plain">
+						<option>--format</option>
+					</arg>
+				</group>
+				<group choice="req">
+					<arg choice="plain">
+						<replaceable class="parameter">can</replaceable>
+					</arg>
+					<arg choice="plain">
+						<replaceable class="parameter">smi</replaceable>
+					</arg>
+					<arg choice="plain">
+						<replaceable class="parameter">sdf</replaceable>
+					</arg>
+				</group>
+			</arg>
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>--embedded-format</option>
+					</arg>
+				</group>
+				<group choice="req">
+					<arg choice="plain">
+						<replaceable class="parameter">inchi</replaceable>
+					</arg>
+					<arg choice="plain">
+						<replaceable class="parameter">smi</replaceable>
+					</arg>
+					<arg choice="plain">
+						<replaceable class="parameter">can</replaceable>
+					</arg>
+				</group>
+			</arg>
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-p</option>
+					</arg>
+					<arg choice="plain">
+						<option>--print</option>
+					</arg>
+				</group>
+			</arg>
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-g</option>
+					</arg>
+					<arg choice="plain">
+						<option>--guess</option>
+					</arg>
+				</group>
+			</arg>
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-e</option>
+					</arg>
+					<arg choice="plain">
+						<option>--page</option>
+					</arg>
+				</group>
+			</arg>
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-c</option>
+					</arg>
+					<arg choice="plain">
+						<option>--coordinates</option>
+					</arg>
+				</group>
+			</arg>
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-b</option>
+					</arg>
+					<arg choice="plain">
+						<option>--bond</option>
+					</arg>
+				</group>
+			</arg>
+			
+			<!--
+				Dictionaries options
+			-->
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-l</option>
+					</arg>
+					<arg choice="plain">
+						<option>--spelling</option>
+					</arg>
+				</group>
+				<replaceable class="option">filename</replaceable>
+			</arg>
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-a</option>
+					</arg>
+					<arg choice="plain">
+						<option>--superatom</option>
+					</arg>
+				</group>
+				<replaceable class="option">filename</replaceable>
+			</arg>
+			
+			<!--
+				Debugging options
+			-->
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-d</option>
+					</arg>
+					<arg choice="plain">
+						<option>--debug</option>
+					</arg>
+				</group>
+			</arg>
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-v</option>
+					</arg>
+					<arg choice="plain">
+						<option>--verbose</option>
+					</arg>
+				</group>
+			</arg>
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-o</option>
+					</arg>
+					<arg choice="plain">
+						<option>--output</option>
+					</arg>
+				</group>
+				<replaceable class="option">prefix</replaceable>
+			</arg>
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-s</option>
+					</arg>
+					<arg choice="plain">
+						<option>--size</option>
+					</arg>
+				</group>
+				<replaceable class="option">dimensions</replaceable>
+			</arg>
+			
+			<!--
+				Input-output options
+			-->
+			<arg choice="opt">
+				<group choice="req">
+					<arg choice="plain">
+						<option>-w</option>
+					</arg>
+					<arg choice="plain">
+						<option>--write</option>
+					</arg>
+				</group>
+				<replaceable class="option">filename</replaceable>
+			</arg>
+
+			<arg choice="opt">
+				<option>--</option>
+			</arg>
+			<arg choice="plain"><replaceable>filename</replaceable></arg>
+		</cmdsynopsis>
+		<cmdsynopsis>
+			<command>&command_name;</command>
+			<group choice="opt">
+				<arg choice="opt">
+					<option>--version</option>
+				</arg>
+				<arg choice="opt">
+					<group choice="req">
+						<arg choice="plain">
+							<option>-h</option>
+						</arg>
+						<arg choice="plain">
+							<option>--help</option>
+						</arg>
+					</group>
+				</arg>
+			</group>
+		</cmdsynopsis>
+	</refsynopsisdiv>
+	<!-- Should go to package/linux/debian/control#Description -->
+	<refsect1 id="description">
+		<title>Description</title>
+		<para>
+			This manual page documents briefly the <command>&command_name;</command> command.
+		</para>
+		<para>
+			OSRA is a utility designed to convert graphical representations of chemical structures into SMILES or SDF.
+		</para>
+		<para>
+			OSRA can read a document in any of the over 90 graphical formats parseable by GraphicMagick and generate the SMILES
+			or SDF representation of the molecular structure images encountered within that document.
+		</para>
+	</refsect1>
+	<refsect1 id="options">
+		<title>Options</title>
+		<para>
+			The program follows the usual GNU command line syntax, with long options starting with two dashes (`-').
+		</para>
+		<para>
+			Most common use: <command>&command_name; [-r &lt;resolution&gt;] &lt;filename&gt;</command>
+		</para>
+		<para>
+			A summary of options is included below.
+		</para>
+		<variablelist>
+			<!-- Use the variablelist.term.separator and the variablelist.term.break.after parameters to control the term elements. -->
+
+			<!--
+				Image pre-processing options
+			-->
+			<varlistentry>
+				<term>
+					<option>-R</option>
+				</term>
+				<term>
+					<option>--rotate <replaceable>degree</replaceable></option>
+				</term>
+				<listitem>
+					<para>Rotate image clockwise by the number of degrees, i.e. <parameter>-R 90</parameter>.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<option>-n</option>
+				</term>
+				<term>
+					<option>--negate</option>
+				</term>
+				<listitem>
+					<para>Inverts colors (for white on black images).</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<option>-r <replaceable>dpi</replaceable></option>
+				</term>
+				<term>
+					<option>--resolution <replaceable>dpi</replaceable></option>
+				</term>
+				<listitem>
+					<para>
+						Resolution in dpi. Default is 300 (unless it's a PS or PDF file which are internally redered at a resolution of 150
+						dpi).
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<option>-t <replaceable>value</replaceable></option>
+				</term>
+				<term>
+					<option>--threshold <replaceable>value</replaceable></option>
+				</term>
+				<listitem>
+					<para>Gray level threshold. Default is 0.2 for black-and-white images.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<option>-u</option>
+				</term>
+				<term>
+					<option>--unpaper <replaceable>rounds</replaceable></option>
+				</term>
+				<listitem>
+					<para>
+						Pre-process image with unpaper algorithm, rounds (e.g. <parameter>-u 2</parameter> to run 2 rounds). Default is 0, or no
+						pre-processing.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<option>-j</option>
+				</term>
+				<term>
+					<option>--jaggy</option>
+				</term>
+				<listitem>
+					<para>Additional thinning/scaling down of low quality documents.</para>
+				</listitem>
+			</varlistentry>
+
+			<!--
+				Output format options
+			-->
+			<varlistentry>
+				<term>
+					<option>-f <replaceable>format</replaceable></option>
+				</term>
+				<term>
+					<option>--format <replaceable>format</replaceable></option>
+				</term>
+				<listitem>
+					<para>
+						Output format (either <parameter>can</parameter> for Canonical SMILES, <parameter>smi</parameter> for SMILES,
+						<parameter>inchi</parameter> for InChI, <parameter>sdf</parameter> for SD file format).
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<option>--embedded-format <replaceable>format</replaceable></option>
+				</term>
+				<listitem>
+					<para>
+						Output format to be embedded into SDF (is only valid if <parameter>format</parameter> is <parameter>sdf</parameter>).
+						The embedded formats supported now are <parameter>inchi</parameter>, <parameter>smi</parameter>, <parameter>can</parameter>.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<option>-p</option>
+				</term>
+				<term>
+					<option>--print</option>
+				</term>
+				<listitem>
+					<para>Prints out the value of confidence function estimate.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<option>-g</option>
+				</term>
+				<term>
+					<option>--guess</option>
+				</term>
+				<listitem>
+					<para>Prints out resolution guess when you chose to have automatic resolution estimate.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<option>-e</option>
+				</term>
+				<term>
+					<option>--page</option>
+				</term>
+				<listitem>
+					<para>Show page number for structures from multi-page PDF, PostScript or TIFF documents (only for SDF/SMI/CAN output format).</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<option>-c</option>
+				</term>
+				<term>
+					<option>--coordinates</option>
+				</term>
+				<listitem>
+					<para>Show surrounding box coordinates (only for SDF/SMI/CAN output format).</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<option>-b</option>
+				</term>
+				<term>
+					<option>--bond</option>
+				</term>
+				<listitem>
+					<para>Show average bond length in pixels (only for SDF/SMI/CAN output format).</para>
+				</listitem>
+			</varlistentry>
+
+			<!--
+				Dictionaries options
+			-->
+			<varlistentry>
+				<term>
+					<option>-l <replaceable>filename</replaceable></option>
+				</term>
+				<term>
+					<option>--spelling <replaceable>filename</replaceable></option>
+				</term>
+				<listitem>
+					<para>
+						Custom spelling correction dictionary (<filename>@resolved_datadir@/spelling.txt</filename> by default).
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<option>-a <replaceable>filename</replaceable></option>
+				</term>
+				<term>
+					<option>--superatom <replaceable>filename</replaceable></option>
+				</term>
+				<listitem>
+					<para>
+						Custom superatom label map to SMILES (<filename>@resolved_datadir@/superatom.txt</filename> by default).
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<!--
+				Debugging options
+			-->
+			<varlistentry>
+				<term>
+					<option>-d</option>
+				</term>
+				<term>
+					<option>--debug</option>
+				</term>
+				<listitem>
+					<para>
+						Print out debug information on spelling corrections. First column – output from the OCR engine, second – result
+						of spelling correction, last – SMILES from the superatom dictionary, if any.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<option>-v</option>
+				</term>
+				<term>
+					<option>--verbose</option>
+				</term>
+				<listitem>
+					<para>
+						Be verbose and print the program flow.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<option>-o <replaceable>prefix</replaceable></option>
+				</term>
+				<term>
+					<option>--output</option>
+				</term>
+				<listitem>
+					<para>
+						Sets a prefix for writing recognized images to files - i.e. <parameter>-o tmp</parameter> will create files
+						<filename>tmp0.png</filename>, <filename>tmp1.png</filename>... for each of the structures.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<option>-s <replaceable>dimensions</replaceable></option>
+				</term>
+				<term>
+					<option>--size <replaceable>dimensions</replaceable></option>
+				</term>
+				<listitem>
+					<para>
+						Resize images on output – can be useful for running OSRA as a backend for a webservice. Example: <parameter>-s 300x400</parameter>.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<!--
+				Input-output options
+			-->
+			<varlistentry>
+				<term>
+					<option>-w <replaceable>filename</replaceable></option>
+				</term>
+				<term>
+					<option>--write <replaceable>filename</replaceable></option>
+				</term>
+				<listitem>
+					<para>Write output to file</para>
+				</listitem>
+			</varlistentry>
+
+			<!--
+				Other options
+			-->
+			<varlistentry>
+				<term>
+					<option>--version</option>
+				</term>
+				<listitem>
+					<para>Displays version information and exits.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<option>-h</option>
+				</term>
+				<term>
+					<option>--help</option>
+				</term>
+				<listitem>
+					<para>Displays usage information and exits.</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+	</refsect1>
+	<refsect1 id="files">
+		<title>Files</title>
+		<variablelist>
+			<varlistentry>
+				<term>
+					<filename>@resolved_datadir@/spelling.txt</filename>
+				</term>
+				<listitem>
+					<para>
+						This is system-wide spelling corrections dictionary for atom labels and abbreviations that might not be correctly parsed
+						by OCR engine. The default location of the file can be redefined with <option>-l</option> option. You can run
+						<command>&command_name;</command> with <option>-d</option> option to check the spelling correction. See <xref
+						linkend="options" />.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					<filename>@resolved_datadir@/spelling.txt</filename>
+				</term>
+				<listitem>
+					<para>
+						This is system-wide translations of superatom labels to SMILES codes. The default location of the file can be redefined
+						with <option>-a</option> option. See <xref linkend="options" />.
+					</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+	</refsect1>
+	<!-- 
+	<refsect1 id="environment">
+		<title>Environment</title>
+		<variablelist>
+			<varlistentry>
+				<term>
+					<envar>FOO_CONF</envar>
+				</term>
+				<listitem>
+					<para>If used, the defined file is used as configuration file (see also <xref linkend="files" />).</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+	</refsect1>
+	 -->
+	<refsect1 id="diagnostics">
+		<title>Diagnostics</title>
+		<para>The following diagnostics may be issued on <filename class="devicefile">stderr</filename>:</para>
+		<variablelist>
+			<varlistentry>
+				<term>
+					<errortext>Cannot open file "dummy.png"</errortext>
+				</term>
+				<listitem>
+					<para>The given input file does not exist or is not readable.</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+		<!-- TODO: Add more error strings -->
+		<para><command>&command_name;</command> provides some return codes, that can be used in scripts:</para>
+		<segmentedlist>
+			<segtitle>Code</segtitle>
+			<segtitle>Diagnostic</segtitle>
+			<seglistitem>
+				<seg>
+					<errorcode>0</errorcode>
+				</seg>
+				<seg>Program exited successfully.</seg>
+			</seglistitem>
+			<seglistitem>
+				<seg>
+					<errorcode>1</errorcode>
+				</seg>
+				<seg>Some error occured. See above mentioned error messages.</seg>
+			</seglistitem>
+		</segmentedlist>
+	</refsect1>
+	<refsect1 id="bugs">
+		<title>Bugs</title>
+		<para>Report all bugs which are functionality related to <ulink url="https://sourceforge.net/tracker/?group_id=203833&amp;atid=987182">SourceForge BugTracker</ulink>.</para>
+		<para>Report all bugs which are Debian-packaging or Debian-specific to <ulink url="http://bugs.debian.org/">Debian BugTracker</ulink>.</para>
+	</refsect1>
+	<refsect1 id="see_also">
+		<title>See also</title>
+		<!-- In alpabetical order -->
+		<para>
+			<citerefentry>
+				<refentrytitle>gocr</refentrytitle>
+				<manvolnum>1</manvolnum>
+			</citerefentry>
+			<phrase>,</phrase>
+			<citerefentry>
+				<refentrytitle>ocrad</refentrytitle>
+				<manvolnum>1</manvolnum>
+			</citerefentry>
+		</para>
+	</refsect1>
+</refentry>

@@ -1,0 +1,42 @@
+Source: @PACKAGE_NAME@
+Section: graphics
+Priority: optional
+Maintainer: Dmitry Katsubo <dma_k@mail.ru>
+Build-Depends: debhelper (>= 7.0.50), libc6-dev (>= 2.7), libstdc++6-4.4-dev | libstdc++6-4.5-dev | libstdc++6-4.6-dev | | libstdc++6-4.7-dev | libstdc++6-4.8-dev, libtclap-dev (>= 1.2), libpotrace-dev (>= 1.8), libgocr-dev (>= 0.49), libocrad-dev (>= 0.20), libopenbabel-dev (>= 2.2), libgraphicsmagick++1-dev (>= 1.3), libcuneiform-dev (>= 1.1), tesseract-ocr-dev (>= 3.00), java2-sdk, docbook-xsl (>= 1.74.0), docbook-xml, xsltproc, naturaldocs
+Standards-Version: 3.9.1
+Homepage: http://osra.sourceforge.net/
+XS-Vcs-Svn: https://osra.svn.sourceforge.net/svnroot/osra/
+Vcs-browser: http://osra.svn.sourceforge.net/viewvc/osra/
+
+Package: @PACKAGE_NAME@
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${binary:Depends}, @PACKAGE_NAME@-common (= ${source:Version})
+Recommends: gocr, ocrad, potrace
+Description: A command line chemical structure recognition tool (OSRA)
+ ${common:Description}
+
+Package: @PACKAGE_NAME@-common
+Architecture: all
+Depends: ${misc:Depends}
+Description: Shared files for chemical structure recognition tool (OSRA)
+ ${common:Description}
+
+Package: lib@PACKAGE_NAME@@LIB_MAJOR_VERSION@
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${binary:Depends}, @PACKAGE_NAME@-common (= ${source:Version})
+Description: A library for chemical structure recognition tool (OSRA)
+ ${common:Description}
+
+Package: lib@PACKAGE_NAME@-dev
+Architecture: any
+Section: libdevel
+Depends: ${misc:Depends}, lib@PACKAGE_NAME@@LIB_MAJOR_VERSION@ (= ${binary:Version})
+Description: Development headers to consume the OSRA library
+ ${common:Description}
+
+Package: lib@PACKAGE_NAME@-java@LIB_MAJOR_VERSION@
+Architecture: any
+Section: java
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${binary:Depends}, @PACKAGE_NAME@-common (= ${source:Version})
+Description: Development headers to consume the OSRA library
+ ${common:Description}

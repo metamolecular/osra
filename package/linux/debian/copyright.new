@@ -1,0 +1,8 @@
+Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
+Name: osra
+Maintainer: Dmitry Katsubo <dma_k@mail.ru>
+Source: https://osra.svn.sourceforge.net/svnroot/osra/
+
+Files: *
+Copyright: 2007-2013 Igor Filippov <igor.v.filippov@gmail.com>
+License: GPL-2+

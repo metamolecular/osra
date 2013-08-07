@@ -1,0 +1,4 @@
+# Note: underscore (_) is not allowed in variable name
+binary:Depends=libpotrace0 (>= 1.8), libopenbabel3 (>= 2.2), libgraphicsmagick++3 (>= 1.3), tesseract-ocr-dev (>= 2.00), libcuneiform0 (>= 1.0)
+common:Description=OSRA is a utility designed to convert graphical representations of chemical${Newline}structures into SMILES or SDF.${Newline}OSRA can read a document in any of the over 90 graphical formats parseable by${Newline}GraphicMagick and generate the SMILES or SDF representation of the molecular${Newline}structure images encountered within that document.${Newline}Authors:${Newline}  ${common:Authors}
+common:Authors=Igor Filippov <igor.v.filippov@gmail.com>

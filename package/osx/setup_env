@@ -1,0 +1,10 @@
+#!/bin/sh
+defaults write ~/.MacOSX/environment OSRA /usr/local/bin/
+chown $USER ~/.MacOSX/environment.plist
+chmod a+r ~/.MacOSX/environment.plist
+launchctl setenv OSRA /usr/local/bin/
+chmod a+rx /usr/local/bin/osra
+chmod a+rx /usr/local/lib/libopenabel.3.dylib
+chmod a+rx /usr/local/lib/libopenabel.dylib
+chmod a+rx /usr/local/lib/libopenabel.la
+chmod -R a+rx /opt/local/osra/

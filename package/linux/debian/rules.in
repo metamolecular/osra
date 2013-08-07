@@ -1,0 +1,32 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+.PHONY:
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -O0
+else
+	CFLAGS += -O2
+endif
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	CFLAGS="$(CFLAGS)" dh_auto_configure -- --enable-docs --enable-lib --enable-java --with-tesseract --with-cuneiform --datadir='$${datarootdir}/$${PACKAGE_NAME}' --docdir='$${datarootdir}/doc/$${PACKAGE_NAME}'
+
+override_dh_install:
+# Check that *.install files have the same names as expected by debuild:
+	[ -e debian/@PACKAGE_NAME@.install ]		|| @LN_S@ osra.install debian/@PACKAGE_NAME@.install
+	[ -e debian/lib@PACKAGE_NAME@@LIB_MAJOR_VERSION@.install ]		|| @LN_S@ libosra.install debian/lib@PACKAGE_NAME@@LIB_MAJOR_VERSION@.install
+	[ -e debian/lib@PACKAGE_NAME@-dev.install ]	|| @LN_S@ libosra-dev.install debian/lib@PACKAGE_NAME@-dev.install
+	[ -e debian/lib@PACKAGE_NAME@-java@LIB_MAJOR_VERSION@.install ]	|| @LN_S@ libosra-java.install debian/lib@PACKAGE_NAME@-java@LIB_MAJOR_VERSION@.install
+
+# Continue with normal operation:
+	dh_install
+
+# The default file "debian/substvars" is replaced by package-specific "debian/${package}.substvars", so in order not to mess with symlinks, we define an additional file with variable substitution:
+override_dh_gencontrol:
+	dh_gencontrol -- -Tdebian/substvars

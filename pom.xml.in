@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+<!--
+
+This POM file can be used to simplify uploading of the binary packages to Maven repositories. 
+Usage:
+REPOSITORY_URL=http://server.internal.org/nexus/content/repositories/rpm-releases REPOSITORY_ID=Releases make package_rpm deploy_rpm deploy_jar
+
+-->
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>net.sf.osra</groupId>
+	<artifactId>osra</artifactId>
+	<packaging>jar</packaging>
+	<version>@PACKAGE_VERSION@</version>
+
+	<name>OSRA</name>
+	<url>http://osra.sourceforge.net/</url>
+
+	<scm>
+		<connection>https://osra.svn.sourceforge.net/svnroot/osra/trunk</connection>
+	</scm>
+
+	<issueManagement>
+		<system>SourceForge</system>
+		<url>https://sourceforge.net/tracker/?group_id=203833&amp;atid=987182</url>
+	</issueManagement>
+
+	<licenses>
+		<license>
+			<name>GPLv2 License</name>
+			<url>http://www.gnu.org/licenses/gpl-2.0.txt</url>
+		</license>
+	</licenses>
+
+	<dependencies>
+		<dependency>
+			<groupId>net.sf.jnati</groupId>
+			<artifactId>jnati-deploy</artifactId>
+			<version>0.4</version>
+			<exclusions>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!--dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.4</version>
+			<scope>test</scope>
+		</dependency-->
+	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>2.7</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+		<sourceDirectory>addons/java</sourceDirectory>
+		<!--testSourceDirectory>addons/lib_java_sample</testSourceDirectory-->
+	</build>
+</project>

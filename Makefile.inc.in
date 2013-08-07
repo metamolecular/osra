@@ -1,0 +1,64 @@
+#
+# This makefile is included from all other makefiles.
+#
+# Notes:
+# - Use $(CXX) variable for compiler.
+# - Use $(LINK.cpp) for linker. Currently it is equal to "$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)", but if you need real linker detection, use libtool + LT_PATH_LD macros
+# - Pass optimization flags as follows:
+#   CXXFLAGS="-g -O3" ./configure
+#   There are no defaults for any options as there is no guarantee, that target compiler supports them, see http://www.gnu.org/software/autoconf/manual/make/Command-Variables.html.
+#
+
+NAME			:= @PACKAGE_NAME@
+VERSION			:= @PACKAGE_VERSION@
+LIB_MAJOR_VERSION	:= @LIB_MAJOR_VERSION@
+LIB_MINOR_VERSION	:= @LIB_MINOR_VERSION@
+LIB_PATCH_VERSION	:= @LIB_PATCH_VERSION@
+NAME_VERSION		:= $(NAME)-$(VERSION)
+
+prefix			:= @prefix@
+exec_prefix		:= @exec_prefix@
+bindir			:= @bindir@
+libdir			:= @libdir@
+includedir		:= @includedir@
+datarootdir		:= @datarootdir@
+datadir			:= @datadir@
+docdir			:= @docdir@
+mandir			:= @mandir@
+
+TARGET_CPU		:= @build_cpu@
+TARGET_OS		:= @build_os@
+
+CXX			:= @CXX@
+RM			:= @RM@
+LN_S			:= @LN_S@
+RANLIB			:= @RANLIB@
+AR			:= @AR@
+INSTALL			:= @INSTALL@
+INSTALL_PROGRAM		:= @INSTALL_PROGRAM@
+INSTALL_DATA		:= @INSTALL_DATA@
+INSTALL_DIR		:= ${INSTALL} -d -m 755
+NATURALDOCS		:= @NATURALDOCS@
+XSLTPROC		:= @XSLTPROC@
+TESSERACT_LIB		:= @TESSERACT_LIB@
+OSRA_LIB		:= @OSRA_LIB@
+OSRA_JAVA		:= @OSRA_JAVA@
+
+# Notes: see "configure --enable-static-linking" to enable static linking; use "configure --enable-profiling" to include extra debug info.
+
+CXXFLAGS		:= @CXXFLAGS@
+CPPFLAGS		:= @CPPFLAGS@
+LDFLAGS			:= @LDFLAGS@
+# Important that this variable is re-evaluated each time when used: 
+LDSHAREDFLAGS		= @LDSHAREDFLAGS@
+
+EXEEXT			:= @EXEEXT@
+SHAREDEXT		:= @SHAREDEXT@
+
+LIBS			:= @LIBS@
+
+PHONY_TARGETS		:= all install uninstall clean distclean
+
+.PHONY: $(PHONY_TARGETS)
+
+.SUFFIXES: .c .cpp

@@ -1,0 +1,55 @@
+#!/bin/sh
+#\
+exec /usr/local/bin/csts  -f "$0" ${1+"$@"}
+#source identifier.tcl
+#ens::identifier::create
+
+#cmdtrace on
+
+set dir_ideal [lindex $argv 0]
+set dir_result [lindex $argv 1]
+
+set tanimoto_list {}
+set false_positive_names {}
+set false_positive_counts {}
+set missing_names {}
+set missing_counts {}
+set identical 0
+set total 0
+set filelist [exec find $dir_ideal -name *.sdf]
+foreach file1 $filelist {
+    set fh1 [molfile open $file1 r]
+    set count1 [molfile count $fh1]
+    set file2 $file1
+#    regsub {.MOL} $file2 {.TIF.sdf} file2
+    regsub $dir_ideal $file2 $dir_result file2
+    set fh2 [molfile open $file2 r]
+    set count2 [molfile count $fh2]
+    set k 0
+    set hashmap [dict create]
+    molfile loop $fh1 eh1 {
+        if { [ens get $eh1 E_NATOMS]==0 } continue
+	    incr k
+	    incr total
+	    ens hadd $eh1
+	    ens purge $eh1 E_STDINCHI
+	    set key1 ""
+            if {[catch {ens need $eh1 E_STDINCHI; set key1 [ens show $eh1 E_STDINCHI]}]} {puts "$file1 $k"}
+	    if {$key1 ne ""} {dict set hashmap $key1 1}
+	}
+    set k 0
+    molfile loop $fh2 eh2 {
+        if { [ens get $eh2 E_NATOMS]==0 } continue
+	    incr k
+	    ens hadd $eh2
+	    ens purge $eh2 E_STDINCHI
+	    set key2 ""
+            if {[catch {ens need $eh2 E_STDINCHI; set key2 [ens show $eh2 E_STDINCHI]}]} {puts "$file2 $k"}
+	    if {$key2 ne "" && [dict exists $hashmap $key2]} {incr identical}
+	}
+ molfile close $fh1
+ molfile close $fh2
+}
+
+puts "Identical structures: $identical"
+puts "Total structures: $total"

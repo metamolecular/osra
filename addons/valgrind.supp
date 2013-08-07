@@ -1,0 +1,140 @@
+#
+# Here is an example of running valgrind, suppressing the warnings for 3rd-party libraries:
+#
+# valgrind --leak-check=full --show-reachable=yes --read-var-info=yes --track-origins=yes --gen-suppressions=all --suppressions=valgrind.supp osra my_test.tif 2> out
+#
+# For more information about suppression, see http://valgrind.org/docs/manual/manual-core.html#manual-core.suppress
+#
+# To perform time profiling one needs to compile (and like) the sources with "gcc -pg" (see Makefile.inc for more details).  
+#
+
+##################
+# Basic libraries
+##################
+
+{
+	Uninitialised value in libdl
+	Memcheck:Cond
+	...
+	obj:/lib/ld-*.so
+}
+
+{
+	Uninitialised value in libltdl
+	Memcheck:Cond
+	...
+	obj:/usr/lib/libltdl.so.*
+}
+
+{
+	Invalid read of size 8 in libltdl
+	Memcheck:Addr8
+	...
+	obj:/usr/lib/libltdl.so.*
+}
+
+{
+	Memory leak in library initialization code for all libraries
+	Memcheck:Leak
+	...
+	fun:_dl_init
+}
+
+##################
+# GraphicsMagick
+##################
+
+{
+	Conditional jump or move depends on uninitialised value(s) in libGraphicsMagick
+	Memcheck:Cond
+	...
+	obj:/usr/lib/libGraphicsMagick.so.*
+}
+
+{
+	Use of uninitialised value of size 4 in libGraphicsMagick
+	Memcheck:Value4
+	...
+	obj:/usr/lib/libGraphicsMagick.so.*
+}
+
+{
+	Invalid read of size 8 in libGraphicsMagick
+	Memcheck:Addr8
+	...
+	obj:/usr/lib/libGraphicsMagick.so.*
+}
+
+{
+	Conditional jump or move depends on uninitialised value(s) in libGraphicsMagick++
+	Memcheck:Cond
+	...
+	obj:/usr/lib/libGraphicsMagick++.so.*
+}
+
+{
+	Use of uninitialised value of size 4 in libGraphicsMagick++
+	Memcheck:Value4
+	...
+	obj:/usr/lib/libGraphicsMagick++.so.*
+}
+
+{
+	Invalid read of size 4 in libGraphicsMagick++
+	Memcheck:Addr4
+	...
+	obj:/usr/lib/libGraphicsMagick++.so.*
+}
+
+{
+	Invalid read of size 8 in libGraphicsMagick++
+	Memcheck:Addr8
+	...
+	obj:/usr/lib/libGraphicsMagick++.so.*
+}
+
+##################
+# OpenBabel
+##################
+
+{
+	Conditional jump or move depends on uninitialised value(s) in libopenbabel
+	Memcheck:Cond
+	...
+	obj:/usr/lib/libopenbabel.so.*
+}
+
+{
+	Use of uninitialised value of size 4 in libopenbabel
+	Memcheck:Value4
+	...
+	obj:/usr/lib/libopenbabel.so.*
+}
+
+{
+	Invalid read of size 4 in libopenbabel
+	Memcheck:Addr4
+	...
+	obj:/usr/lib/libopenbabel.so.*
+}
+
+{
+	Invalid read of size 8 in libopenbabel
+	Memcheck:Addr8
+	...
+	obj:/usr/lib/libopenbabel.so.*
+}
+
+{
+	Use of uninitialised value of size 4 in libopenbabel
+	Memcheck:Value4
+	...
+	obj:/usr/lib/openbabel/*.so
+}
+
+{
+	Invalid read of size 8 in libopenbabel
+	Memcheck:Addr8
+	...
+	obj:/usr/lib/openbabel/*.so
+}
